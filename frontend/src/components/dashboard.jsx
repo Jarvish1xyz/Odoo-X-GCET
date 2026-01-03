@@ -1,4 +1,5 @@
-import React,{ useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import { 
@@ -8,32 +9,33 @@ import {
 } from 'lucide-react';
 
 const EmployeeDashboard = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('Employees');
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
-  const fetchEmployees = async () => {
-    try {
-      const token = localStorage.getItem("token");
+    const fetchEmployees = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-      const res = await axios.get(
-        "http://localhost:5000/api/hr/employees",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const res = await axios.get(
+          "http://localhost:5000/api/hr/employees",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        }
-      );
+        );
 
-      setEmployees(res.data);
-    } catch (err) {
-      console.error("Failed to fetch employees", err);
-    }
-  };
+        setEmployees(res.data);
+      } catch (err) {
+        console.error("Failed to fetch employees", err);
+      }
+    };
 
-  fetchEmployees();
-}, []);
+    fetchEmployees();
+  }, []);
 
 
   const navLinks = [
@@ -109,7 +111,18 @@ const EmployeeDashboard = () => {
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">{activeTab} Directory</h1>
             <p className="text-slate-500 font-medium text-sm mt-1">Quick management of your {activeTab.toLowerCase()} data</p>
           </div>
-          <button className="flex items-center gap-2 bg-blue-600 px-6 py-3 rounded-2xl text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+          <button
+            onClick={() => {
+              // Navigate to register page when adding a new employee
+              if (activeTab === 'Employees') {
+                navigate('/register');
+              } else {
+                // fallback or other flows for other tabs
+                navigate('/');
+              }
+            }}
+            className="flex items-center gap-2 bg-blue-600 px-6 py-3 rounded-2xl text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+          >
             <Plus size={18} /> Add New {activeTab === 'Employees' ? 'Employee' : 'Request'}
           </button>
         </div>
@@ -184,4 +197,4 @@ const EmployeeDashboard = () => {
 };
 
 
-export  {EmployeeDashboard};
+export { EmployeeDashboard };

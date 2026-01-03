@@ -21,7 +21,7 @@ export const HRAttendanceDashboard = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
-        const res = await axios.get('/attendance/all', {
+        const res = await axios.get('/api/attendance/all', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           }
@@ -158,3 +158,4 @@ export const HRAttendanceDashboard = () => {
     </div>
   );
 };
+

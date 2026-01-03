@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React,{ useEffect } from 'react';
+import axios from 'axios';
+
 import { 
   Search, Plus, Mail, Phone, MoreVertical, 
   Filter, Grid, List, UserCheck, ShieldCheck, 
@@ -8,13 +10,31 @@ import {
 const EmployeeDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('Employees');
+  const [employees, setEmployees] = useState([]);
 
-  const employees = [
-    { id: 'EMP-101', name: 'Arjun Mehta', role: 'Sr. Software Engineer', email: 'arjun@company.com', phone: '+91 98765 43210', status: 'Active' },
-    { id: 'EMP-102', name: 'Sana Khan', role: 'UI/UX Lead', email: 'sana@company.com', phone: '+91 87654 32109', status: 'Active' },
-    { id: 'EMP-103', name: 'Rahul Verma', role: 'Project Manager', email: 'rahul@company.com', phone: '+91 76543 21098', status: 'On Break' },
-    { id: 'EMP-104', name: 'Priya Das', role: 'HR Manager', email: 'priya@company.com', phone: '+91 65432 10987', status: 'Active' },
-  ];
+  useEffect(() => {
+  const fetchEmployees = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:5000/api/hr/employees",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setEmployees(res.data);
+    } catch (err) {
+      console.error("Failed to fetch employees", err);
+    }
+  };
+
+  fetchEmployees();
+}, []);
+
 
   const navLinks = [
     { name: 'Employees', icon: Users },
@@ -162,5 +182,6 @@ const EmployeeDashboard = () => {
     </div>
   );
 };
+
 
 export  {EmployeeDashboard};

@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* Optional: Keep your font setting */
+:root {
+  font-family: 'Inter', sans-serif;
+}

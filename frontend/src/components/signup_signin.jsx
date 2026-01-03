@@ -1,188 +1,200 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, ShieldCheck, Mail, Lock, User, Building2, CheckCircle2, LogIn } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const AuthSystem = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [showPass, setShowPass] = useState(false);
-  const [showConfirmPass, setShowConfirmPass] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    companyName: '',
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
+import { 
+  Search, Plus, Mail, Phone, MoreVertical, 
+  Filter, Grid, List, UserCheck, ShieldCheck, 
+  Briefcase, Users, Calendar, Coffee, Bell, User
+} from 'lucide-react';
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    // Keep password case-sensitive, lowercase everything else
-    const processedValue = name.includes('password') ? value : value.toLowerCase();
-    setFormData({ ...formData, [name]: processedValue });
-  };
+const EmployeeDashboard = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('Employees');
+  const [employees, setEmployees] = useState([]);
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setShowPass(false);
-    setShowConfirmPass(false);
-  };
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          "/api/hr/employees",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        setEmployees(res.data);
+      } catch (err) {
+        console.error("Failed to fetch employees", err);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+
+  const navLinks = [
+    { name: 'Employees', icon: Users },
+    { name: 'Attendance', icon: Calendar },
+    { name: 'Time Off', icon: Coffee },
+  ];
+
+  const filteredEmployees = employees.filter(emp =>
+    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    emp.id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-sans transition-all duration-500">
+    <div className="min-h-screen bg-[#F1F5F9] font-sans">
       
-      {/* 1. Universal Logo Header */}
-      <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-lg shadow-blue-200 mb-4 transition-transform hover:rotate-3 cursor-pointer">
-          <ShieldCheck size={32} className="text-white" />
-        </div>
-        <h1 className="text-2xl font-black text-slate-800 tracking-tight uppercase">
-          Nexus<span className="text-blue-600">HRM</span>
-        </h1>
-        <p className="text-slate-500 text-sm font-medium mt-1 uppercase tracking-widest text-[10px]">
-          {isLogin ? 'Welcome Back' : 'Join the Platform'}
-        </p>
-      </div>
-
-      {/* 2. Unified Auth Card */}
-      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-slate-800">
-            {isLogin ? 'Sign In' : 'Create Account'}
-          </h2>
-          <p className="text-slate-400 text-sm mt-1">
-            {isLogin 
-              ? 'Access your dashboard and manage your team.' 
-              : 'Start your 14-day free trial today.'}
-          </p>
-        </div>
-
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+      {/* 1. GLOBAL HEADER NAV */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200 px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-20">
           
-          {/* Sign Up Fields Only */}
-          {!isLogin && (
-            <>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 ml-1 uppercase tracking-wider">Company Name</label>
-                <div className="relative">
-                  <Building2 className="absolute left-4 top-3.5 text-slate-400" size={18} />
-                  <input 
-                    type="text" 
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    placeholder="Acme Corp"
-                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-slate-700"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 ml-1 uppercase tracking-wider">Full Name</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-3.5 text-slate-400" size={18} />
-                  <input 
-                    type="text" 
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="John Doe"
-                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-slate-700"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Email (Always Visible) */}
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-500 ml-1 uppercase tracking-wider">Work Email</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-3.5 text-slate-400" size={18} />
-              <input 
-                type="email" 
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="john@company.com"
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-slate-700"
-              />
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200">
+              <ShieldCheck className="text-white" size={20} />
             </div>
+            <span className="text-xl font-black text-slate-900 tracking-tighter">GCET<span className="text-blue-600">Portal</span></span>
           </div>
 
-          {/* Password (Always Visible) */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center ml-1">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Password</label>
-              {isLogin && <button className="text-[10px] text-blue-600 font-bold hover:underline">Forgot?</button>}
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-3.5 text-slate-400" size={18} />
-              <input 
-                type={showPass ? "text" : "password"} 
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-slate-700"
-              />
-              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-3.5 text-slate-400 hover:text-blue-600">
-                {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <button
+                key={link.name}
+                onClick={() => setActiveTab(link.name)}
+                className={`flex items-center gap-2 text-sm font-bold transition-all px-1 py-2 border-b-2 ${
+                  activeTab === link.name 
+                  ? 'text-blue-600 border-blue-600' 
+                  : 'text-slate-400 border-transparent hover:text-slate-600'
+                }`}
+              >
+                <link.icon size={18} />
+                {link.name}
               </button>
+            ))}
+          </nav>
+
+          {/* Profile & Notifications */}
+          <div className="flex items-center gap-4">
+            <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all relative">
+              <Bell size={20} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+            </button>
+            <div className="h-8 w-[1px] bg-slate-200 mx-2"></div>
+            <div className="flex items-center gap-3 pl-2">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-black text-slate-900">Admin User</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">HR Dept</p>
+              </div>
+              <div className="w-10 h-10 bg-blue-100 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-blue-600 font-black text-xs">
+                AD
+              </div>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Confirm Password (Sign Up Only) */}
-          {!isLogin && (
-            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2">
-              <label className="text-[10px] font-bold text-slate-500 ml-1 uppercase tracking-wider">Confirm Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-3.5 text-slate-400" size={18} />
-                <input 
-                  type={showConfirmPass ? "text" : "password"} 
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-slate-700"
-                />
-                <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="absolute right-4 top-3.5 text-slate-400 hover:text-blue-600">
-                  {showConfirmPass ? <EyeOff size={18} /> : <Eye size={18} />}
+      {/* 2. MAIN CONTENT AREA */}
+      <main className="max-w-7xl mx-auto p-6 lg:p-10 space-y-8">
+        
+        {/* Page Title & Add Button */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">{activeTab} Directory</h1>
+            <p className="text-slate-500 font-medium text-sm mt-1">Quick management of your {activeTab.toLowerCase()} data</p>
+          </div>
+          <button
+            onClick={() => {
+              // Navigate to register page when adding a new employee
+              if (activeTab === 'Employees') {
+                navigate('/register');
+              } else {
+                // fallback or other flows for other tabs
+                navigate('/');
+              }
+            }}
+            className="flex items-center gap-2 bg-blue-600 px-6 py-3 rounded-2xl text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+          >
+            <Plus size={18} /> Add New {activeTab === 'Employees' ? 'Employee' : 'Request'}
+          </button>
+        </div>
+
+        {/* Toolbar */}
+        <div className="bg-white p-4 rounded-[2rem] border border-slate-200 flex flex-col md:flex-row gap-4 items-center shadow-sm">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input 
+              type="text" 
+              placeholder={`Search in ${activeTab.toLowerCase()}...`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-14 pr-6 py-3.5 bg-slate-50 border-none rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/10 outline-none transition-all text-sm font-medium"
+            />
+          </div>
+          <div className="flex bg-slate-50 p-1.5 rounded-xl border border-slate-100">
+            <button className="p-2.5 bg-white text-blue-600 rounded-lg shadow-sm"><Grid size={18}/></button>
+            <button className="p-2.5 text-slate-400 hover:text-slate-600 rounded-lg"><List size={18}/></button>
+          </div>
+        </div>
+
+        {/* Card Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredEmployees.map((emp) => (
+            <div key={emp.id} className="group bg-white rounded-[2.5rem] border border-slate-200 p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1 relative">
+              
+              <div className="absolute top-6 right-6">
+                <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
+                  emp.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
+                }`}>
+                  {emp.status}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-5 mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-black shadow-lg shadow-blue-100">
+                  {emp.name.split(' ').map(n => n[0]).join('')}
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 leading-tight">{emp.name}</h3>
+                  <p className="text-blue-600 text-[10px] font-bold uppercase tracking-wider mt-1">{emp.id}</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3 text-slate-500">
+                  <Briefcase size={14} className="text-slate-300"/>
+                  <span className="text-xs font-semibold">{emp.role}</span>
+                </div>
+                <div className="flex items-center gap-3 text-slate-500">
+                  <Mail size={14} className="text-slate-300"/>
+                  <span className="text-xs font-semibold truncate">{emp.email}</span>
+                </div>
+              </div>
+
+              <div className="pt-5 border-t border-slate-50 flex items-center justify-between">
+                <div className="flex -space-x-2">
+                   <div className="w-7 h-7 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400">#</div>
+                   <div className="w-7 h-7 rounded-full border-2 border-white bg-blue-50 flex items-center justify-center text-[10px] font-bold text-blue-500">✔</div>
+                </div>
+                <button className="text-slate-300 hover:text-blue-600 transition-all">
+                  <MoreVertical size={18} />
                 </button>
               </div>
-              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <p className="text-[11px] text-rose-500 font-bold mt-1 ml-1 italic">Passwords do not match</p>
-              )}
             </div>
-          )}
-
-          {/* Action Button */}
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-100 transition-all transform active:scale-[0.98] mt-6 flex items-center justify-center gap-2 group">
-            {isLogin ? 'Sign In Now' : 'Create Free Account'}
-            {isLogin ? <LogIn size={18} /> : <CheckCircle2 size={18} />}
-          </button>
-        </form>
-
-        {/* Footer Toggle */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-slate-500 font-medium">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-            <button 
-              onClick={toggleMode}
-              className="text-blue-600 font-bold hover:underline transition-all"
-            >
-              {isLogin ? 'Sign Up' : 'Sign In'}
-            </button>
-          </p>
+          ))}
         </div>
-      </div>
-
-      {/* 3. Global Security Footer */}
-      <div className="mt-8 flex items-center gap-2 text-slate-400 text-[10px] font-medium uppercase tracking-widest">
-        <ShieldCheck size={14} />
-        Enterprise-grade 256-bit encryption
-      </div>
+      </main>
     </div>
   );
 };
 
-export default AuthSystem;
+
+export { EmployeeDashboard };

@@ -36,16 +36,16 @@ export const HRAttendanceDashboard = () => {
   }, []);
 
   // 🔍 FILTER LOGIC (UNCHANGED)
-  const filteredEmployees = employees.filter(emp => {
-    const matchesSearch =
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.id.toLowerCase().includes(searchTerm.toLowerCase());
+  // const filteredEmployees = employees.filter(emp => {
+  //   const matchesSearch =
+  //     emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     emp.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus =
-      filterStatus === 'All' || emp.status === filterStatus;
+  //   const matchesStatus =
+  //     filterStatus === 'All' || emp.status === filterStatus;
 
-    return matchesSearch && matchesStatus;
-  });
+  //   return matchesSearch && matchesStatus;
+  // });
 
   // 🎨 STATUS BADGE (UNCHANGED)
   const getStatusBadge = (status) => {

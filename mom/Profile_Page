@@ -1,0 +1,45 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+function Profile() {
+    const [user, setUser] = useState({});
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem("token");
+
+                const res = await axios.get("/api/user/profile", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setUser(res.data.user);
+            } catch (err) {
+                console.log(err.message);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+
+
+    return (
+        <>
+            <div className="container" style={{ marginTop: "10vh" }}>
+                <div key={user._id} className="card" style={{ width: "18rem" }}>
+                    <div className="card-body">
+                        <h5 className="card-title">{user.name}</h5>
+                        <h6 className="card-subtitle mb-2 text-body-secondary">{user.username}</h6>
+                        <h6 className="card-subtitle mb-2 text-body-secondary">{user.phone}</h6>
+                        <h6 className="card-subtitle mb-2 text-body-secondary">{user.email}</h6>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
+
+export default Profile;
